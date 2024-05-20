@@ -1,3 +1,4 @@
+--Crea las tablas temporales de acorde a los archivos csv proporcionados
 CREATE TABLE temp_actores_peliculas(
     nombre_pelicula TEXT,
     ano_pelicula TEXT,

@@ -1,5 +1,4 @@
-
-
+-- Verifica los datos nulos en las tablas temporales
 SELECT * FROM public.actores_pelicula_temp
 WHERE (nombre_pelicula='NULL'
 	   OR ano_pelicula='NULL'
