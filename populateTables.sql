@@ -108,4 +108,42 @@ SELECT DISTINCT enlace, 'Carátula'
 FROM temp_caratulas;
 
 
-INSERT INTO Critica (critico, texto, puntuacion, id_pagweb, id_pelicula)
+INSERT INTO Critica (critico, texto, puntuacion,fecha, id_pagweb, id_pelicula)
+SELECT
+    nombre_critico,
+    texto,
+    CASE 
+        WHEN temp_criticas.nota = 'NULL' THEN NULL 
+        ELSE CAST(temp_criticas.nota AS FLOAT) 
+    END, 
+    fecha,
+    PagWeb.id_pagweb,
+    pelicula.id_pelicula
+FROM temp_criticas
+LEFT JOIN PagWeb ON temp_criticas.enlace=PagWeb.url
+LEFT JOIN pelicula ON temp_criticas.pelicula=pelicula.titulo;
+
+INSERT INTO caratulas (nombre, cp, cm, cg, poster, id_pelicula )
+SELECT
+    temp_caratulas.titulo AS nombre,
+    cp,
+    cm,
+    cg,
+    temp_caratulas.background AS poster,
+    pelicula.id_pelicula
+
+FROM temp_caratulas
+LEFT JOIN pelicula ON temp_caratulas.titulo=pelicula.titulo;
+
+
+INSERT INTO alojadas(fecha, id_caratula, id_pagweb)
+SELECT
+    CASE 
+        WHEN fecha_alojamiento = 'NULL' THEN NULL 
+        ELSE TO_TIMESTAMP(fecha_alojamiento, 'YYYY-MM-DD HH24:MI:SS') 
+    END AS fecha,
+    caratulas.id_caratula,
+    PagWeb.id_pagweb
+FROM temp_caratulas
+INNER JOIN caratulas ON temp_caratulas.titulo= caratulas.nombre
+INNER JOIN PagWeb ON temp_caratulas.enlace=PagWeb.url;

@@ -41,10 +41,11 @@ CREATE TABLE PagWeb (
 );
 
 CREATE TABLE Critica (
-    id_crítica SERIAL PRIMARY KEY,
+    id_critica SERIAL PRIMARY KEY,
     critico VARCHAR(255) NOT NULL,
     texto TEXT NOT NULL,
     puntuacion FLOAT NOT NULL,
+    fecha VARCHAR(10),
     id_pagweb INT,
     id_pelicula INT,
     FOREIGN KEY (id_pagweb) REFERENCES PagWeb(id_pagweb),
@@ -52,7 +53,7 @@ CREATE TABLE Critica (
 );
 
 CREATE TABLE Caratulas (
-    id_carátula SERIAL PRIMARY KEY,
+    id_caratula SERIAL PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
     cp VARCHAR(255),
     cm VARCHAR(255),
@@ -65,10 +66,10 @@ CREATE TABLE Caratulas (
 
 
 CREATE TABLE Alojadas (
-    id_carátula INT,
+    id_caratula INT,
     id_pagweb INT,
-    fecha DATE NOT NULL,
-    FOREIGN KEY (id_carátula) REFERENCES Caratulas(id_carátula),
+    fecha TIMESTAMP,
+    FOREIGN KEY (id_caratula) REFERENCES Caratulas(id_caratula),
     FOREIGN KEY (id_pagweb) REFERENCES PagWeb(id_pagweb)
 );
 
