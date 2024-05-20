@@ -1,4 +1,4 @@
-CREATE TABLE actores_pelicula_temp(
+CREATE TABLE temp_actores_peliculas(
     nombre_pelicula TEXT,
     ano_pelicula TEXT,
     actor TEXT,
@@ -7,7 +7,7 @@ CREATE TABLE actores_pelicula_temp(
     personaje TEXT
 );
 
-CREATE TABLE caratulas_temp(
+CREATE TABLE temp_caratulas_(
     ano_pelicula TEXT,
     titulo TEXT,
     titulo_guiones TEXT,
@@ -19,7 +19,7 @@ CREATE TABLE caratulas_temp(
     cg TEXT
 );
 
-CREATE TABLE criticas_temp(
+CREATE TABLE temp_criticas(
     fecha TEXT,
     pelicula TEXT,
     nombre_critico TEXT,
@@ -28,7 +28,7 @@ CREATE TABLE criticas_temp(
     enlace TEXT
 );
 
-CREATE TABLE directores_peliculas_temp(
+CREATE TABLE temp_directores_peliculas(
     nombre_pelicula TEXT,
     ano TEXT,
     nombre_director TEXT,
@@ -36,7 +36,7 @@ CREATE TABLE directores_peliculas_temp(
     fallecimiento TEXT
 );
 
-CREATE TABLE guionistas_peliculas_temp(
+CREATE TABLE temp_guionistas_peliculas(
     nombre_pelicula TEXT,
     ano TEXT,
     nombre_guionista TEXT,
@@ -44,13 +44,13 @@ CREATE TABLE guionistas_peliculas_temp(
     fallecimiento TEXT
 );
 
-CREATE TABLE peliculas_temp(
+CREATE TABLE temp_peliculas(
     idIMDB TEXT,
     titulo TEXT,
     ano TEXT,
     genero TEXT,
     idioma TEXT,
-    puntuacion TEXT,
+    duracion TEXT,
     sinopsis TEXT,
     calificacion_edad TEXT
 );
