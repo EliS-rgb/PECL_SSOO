@@ -3,6 +3,7 @@
 -- Seleccionar los directores nacidos en 1970
 SELECT DISTINCT 
     personal.id_personal, -- ID único de la persona
+    personal.nombre, --Nombre del director
     id_director, -- ID único del director
     nacimiento -- Año de nacimiento de la persona
 FROM Personal
@@ -80,19 +81,13 @@ GROUP BY
 -------------------5A. Mostrar un listado de géneros con la cantidad de películas pertenecientes al mismo, ordenados por los que tienen más películas a los que tienen menos
 --SE ORDENAN CONTANDO EL CAMPO ENTERO 
 
--- Utilizamos regexp_split_to_table para descomponer los géneros en filas individuales
 SELECT 
-    genero, -- Género de la película
+    generos, -- Género de la película
     COUNT(*) AS num_peliculas -- Contar el número de películas para cada género
-FROM (
-    SELECT 
-        regexp_split_to_table(generos, E'\\s*,\\s*') AS genero -- Descomponer la lista de géneros en filas individuales
-    FROM 
-        Pelicula
-) AS generos_pelis
+FROM Pelicula
 -- Agrupar por el género descompuesto
 GROUP BY 
-    genero
+    generos
 -- Ordenar los resultados por el número de películas en orden descendente
 ORDER BY 
     num_peliculas DESC;
@@ -126,7 +121,7 @@ SELECT
     SUM(CASE WHEN generos LIKE '%Musical%' THEN 1 ELSE 0 END) AS Musical,
     SUM(CASE WHEN generos LIKE '%Reality-TV%' THEN 1 ELSE 0 END) AS "Reality-TV",
     SUM(CASE WHEN generos LIKE '%Family%' THEN 1 ELSE 0 END) AS Family,
-    SUM(CASE WHEN generos LIKE '%action%' THEN 1 ELSE 0 END) AS "Action"
+    SUM(CASE WHEN generos LIKE '%Action%' THEN 1 ELSE 0 END) AS "Action"
 FROM Pelicula;
 
 -------------------5C. Mostrar un listado de géneros con la cantidad de películas pertenecientes al mismo, ordenados por los que tienen más películas a los que tienen menos
@@ -279,7 +274,7 @@ ORDER BY id_pelicula DESC;
 
 -------------------7. Solicitar los actores que hayan actuado en películas en idioma japonés y tengan una duración inferior a 120 minutos y cuyo año de nacimiento sea inferior a 1960. a salida mostrará el actor, el papel que hay interpretado en la
 --película, así como el título, año, idioma, y duración de la misma
-SELECT personal.nombre, Actua.papel, Pelicula.titulo, Pelicula.ano, Pelicula.idioma, Pelicula.duracion
+SELECT personal.nombre,personal.nacimiento, Actua.papel, Pelicula.titulo, Pelicula.ano, Pelicula.idioma, Pelicula.duracion
 FROM Actor
 -- Une la tabla Actor con la tabla Actua utilizando el ID del actor
 JOIN Actua ON Actor.id_actor = Actua.id_actor
@@ -297,6 +292,7 @@ WHERE Pelicula.idioma = 'ja' AND Pelicula.duracion < 120 AND personal.nacimiento
 -------------------8A. Mostrar el título y año de lanzamiento de las 3 películas con mayor puntuación media de entre todas las críticas. Mostrar también dicha puntuación media
 -- Selecciona el título de la película, el ID de la película y la puntuación media de las críticas
 SELECT pelicula.titulo, critica.id_pelicula, AVG(puntuacion) AS puntuacion_media
+FROM critica
 -- Une la tabla Critica con la tabla Pelicula utilizando el ID de la película
 INNER JOIN pelicula ON pelicula.id_pelicula = critica.id_pelicula
 -- Agrupa los resultados por título de la película y ID de la película

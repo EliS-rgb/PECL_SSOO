@@ -1,6 +1,6 @@
 -- Inserta datos de actores y directores en la tabla Personal
 INSERT INTO Personal (nombre, nacimiento, fallecimiento)
-SELECT DISTINCT actor, 
+SELECT actor, 
        CASE 
            WHEN nacimiento = 'NULL' THEN NULL 
            WHEN nacimiento = '\N' THEN NULL 
