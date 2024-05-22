@@ -8,7 +8,7 @@ CREATE TABLE temp_actores_peliculas(
     personaje TEXT
 );
 
-CREATE TABLE temp_caratulas_(
+CREATE TABLE temp_caratulas(
     ano_pelicula TEXT,
     titulo TEXT,
     titulo_guiones TEXT,

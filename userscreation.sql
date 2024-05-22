@@ -2,7 +2,7 @@
 -- Crear el usuario administrador
 CREATE USER admin WITH PASSWORD 'admin';
 -- Conceder todos los privilegios al usuario administrador
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO admin;
+ALTER USER admin WITH SUPERUSER;
 
 
 ----------------------USUARIO GESTOR----------------------
@@ -31,14 +31,7 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO critico;
 GRANT INSERT ON TABLE Critica TO critico;
 GRANT INSERT ON TABLE PagWeb TO critico;
 --GRANT INSERT ON TABLE Pelicula TO critico;
-
--- Conceder permisos de selección en tablas que se creen en el futuro
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO critico;
-
--- Conceder permisos de inserción en la tabla de críticas para tablas que se creen en el futuro
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT INSERT ON TABLE Critica TO critico;
--- Para tablas dependientes de Critica:
-
+GRANT USAGE, SELECT ON SEQUENCE critica_id_critica_seq TO critico;
 
 ----------------------USUARIO CLIENTE----------------------
 -- Crear el usuario cliente
