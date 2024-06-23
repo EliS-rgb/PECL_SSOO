@@ -1,3 +1,4 @@
+import os
 import psycopg2  # Importar el módulo psycopg2 para interactuar con PostgreSQL
 from psycopg2 import sql  # Importar sql de psycopg2 para generar consultas SQL de forma segura
 import tkinter as tk  # Importar tkinter para la interfaz gráfica 
@@ -173,6 +174,15 @@ def crear_tablas_finales(usuario, contrasena):
     print(directorio_global+"/generateTables.sql  ", nombre)
     ejecutar_archivo_sql(directorio_global+"/generateTables.sql",iniciar_sesion(usuario,contrasena))
     ejecutar_archivo_sql(directorio_global+"/populateTables.sql",iniciar_sesion(usuario,contrasena))
+def crear_usuarios(usuario, contrasena):
+    """
+    Función para crear usuarios en la base de datos PostgreSQL.
+
+    Parameters:
+    - usuario: nombre de usuario de PostgreSQL
+    - contrasena: contraseña del usuario de PostgreSQL
+    """
+    ejecutar_archivo_sql(directorio_global+"/usercreation.sql",iniciar_sesion(usuario,contrasena))
 
 def crear_disparadores(usuario,contrasena):
     """
@@ -239,6 +249,7 @@ def checkformatocsv(directorio):
             print("Entrada no válida. Saliendo...")
     else:
         print("No se encontraron errores en el archivo CSV.")
+        os.rename(output_file, output_file2)
 
 def menu_principal():
     global nombre # Acceder a la variable global 'nombre' para almacenar el nombre de la base de datos
