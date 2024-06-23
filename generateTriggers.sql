@@ -16,15 +16,15 @@ CREATE TABLE PuntuacionMedia (
 CREATE OR REPLACE FUNCTION trigger_aud() RETURNS TRIGGER AS $$
 BEGIN
     IF (TG_OP = 'INSERT') THEN
-        INSERT INTO Auditoria (tabla, tipo_evento, usuario, fecha_hora)
+        INSERT INTO Auditoria (tabla, evento, usuario, fecha_hora)
         VALUES (TG_TABLE_NAME, 'INSERT', SESSION_USER, NOW());
         RETURN NEW;
     ELSIF (TG_OP = 'UPDATE') THEN
-        INSERT INTO Auditoria (tabla, tipo_evento, usuario, fecha_hora)
+        INSERT INTO Auditoria (tabla, evento, usuario, fecha_hora)
         VALUES (TG_TABLE_NAME, 'UPDATE', SESSION_USER, NOW());
         RETURN NEW;
     ELSIF (TG_OP = 'DELETE') THEN
-        INSERT INTO Auditoria (tabla, tipo_evento, usuario, fecha_hora)
+        INSERT INTO Auditoria (tabla, evento, usuario, fecha_hora)
         VALUES (TG_TABLE_NAME, 'DELETE', SESSION_USER, NOW());
         RETURN OLD;
     END IF;
@@ -65,38 +65,66 @@ FOR EACH ROW EXECUTE FUNCTION trigger_aud();
 
 
 
-CREATE TRIGGER check_insert_critica BEFORE INSERT ON Críticas
-FOR EACH ROW
+CREATE OR REPLACE FUNCTION check_insert_critica() RETURNS TRIGGER AS $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM Pag_Web WHERE id_url = NEW.id_url) THEN
-        INSERT INTO Pag_Web ( Url, Tipo)
-        VALUES ( NEW.url, NEW.url); 
+    IF NOT EXISTS (SELECT 1 FROM Pag_Web WHERE url_pagweb = NEW.url_pagweb) THEN
+        INSERT INTO Pag_Web (Url, tipo) VALUES (NEW.url, NEW.tipo);
     END IF;
-END //
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER check_insert_caratula BEFORE INSERT ON Carátulas
+
+CREATE TRIGGER trigger_check_insert_critica
+BEFORE INSERT ON "critica"
 FOR EACH ROW
+EXECUTE FUNCTION check_insert_critica();
+
+
+
+CREATE OR REPLACE FUNCTION check_insert_caratula() RETURNS TRIGGER AS $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM Pag_Web WHERE id_url = NEW.id_url) THEN
-        INSERT INTO Pag_Web (Url, Tipo)
-        VALUES (NEW.Url, NEW.Tipo); 
+    IF NOT EXISTS (SELECT 1 FROM Pag_Web WHERE url_pagweb = NEW.url_pagweb) THEN
+        INSERT INTO Pag_Web (Url, tipo) VALUES (NEW.url, NEW.tipo);
     END IF;
-END //
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_media AFTER INSERT ON Critica
+
+CREATE TRIGGER trigger_check_insert_caratula 
+BEFORE INSERT ON Caratulas
 FOR EACH ROW
-BEGIN
-    DECLARE total_puntuacion DECIMAL(5,2);
-    DECLARE total_criticas INT;
+EXECUTE FUNCTION check_insert_caratula();
 
-    SELECT SUM(Puntuacion), COUNT(*)
+
+
+CREATE OR REPLACE FUNCTION update_media() RETURNS TRIGGER AS $$
+DECLARE
+    total_puntuacion DECIMAL(5,2);
+    total_criticas INT;
+BEGIN
+    -- Calcular la suma de puntuaciones y el total de críticas para la película
+    SELECT COALESCE(SUM(puntuacion), 0), COUNT(*)
     INTO total_puntuacion, total_criticas
-    FROM Críticas
+    FROM Critica
     WHERE id_pelicula = NEW.id_pelicula;
 
+    -- Actualizar la puntuación media si hay críticas
     IF total_criticas > 0 THEN
         INSERT INTO PuntuacionMedia (id_pelicula, puntuacion_media)
         VALUES (NEW.id_pelicula, total_puntuacion / total_criticas)
-        ON DUPLICATE KEY UPDATE puntuacion_media = total_puntuacion / total_criticas;
+        ON CONFLICT (id_pelicula) DO UPDATE 
+        SET puntuacion_media = EXCLUDED.puntuacion_media;
     END IF;
-END //
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER trigger_update_media 
+AFTER INSERT ON Critica
+FOR EACH ROW
+EXECUTE FUNCTION update_media();
+

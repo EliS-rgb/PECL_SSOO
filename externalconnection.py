@@ -1,8 +1,8 @@
 import psycopg2
 import psycopg
 
-usuario=""
-contrasena=""
+db_name=""
+
 
 consulta_1="""
 SELECT personal.id_personal, personal.nombre, id_director, nacimiento
@@ -261,15 +261,10 @@ LIMIT 1
 ;
 """
 
-def ejecutar_consulta(consulta):
+def ejecutar_consulta(consulta,us,contrasena):
     try:
         # Establecer la conexión con la base de datos
-        conn = psycopg2.connect(
-            dbname="PE",
-            user="postgres",
-            password="1234",
-            host="127.0.0.1"
-        )
+        conn =iniciar_sesion()
         print("Conexión exitosa")
          # Crear un cursor para ejecutar la consulta
         cursor = conn.cursor()
@@ -308,10 +303,12 @@ def login():
     print("===== INICIO DE SESIÓN =====")
     intentos = 3
     while intentos > 0:
-        usuario = input("Usuario: ")
-        contrasena = input("Contraseña: ")
-        if verificar_credenciales(usuario, contrasena):
-            print("Inicio de sesión exitoso. ¡Bienvenido,", usuario, "!")
+        global us 
+        global contrasena 
+        us = input("usuario: ")
+        contrasena= input("Contraseña: ")
+        if iniciar_sesion()!=None:
+            print("Inicio de sesión exitoso. ¡Bienvenido,", us, "!")
             return True
         else:
             intentos -= 1
@@ -319,36 +316,33 @@ def login():
     print("Se agotaron los intentos. Saliendo del programa...")
     return False
 
-def verificar_credenciales(usuario, contrasena):
+def iniciar_sesion():
+    ##print("TEST:",us,contrasena)
     try:
         conn = psycopg.connect(
-            dbname="PE",
-            user=usuario,
+            dbname=db_name,
+            user=us,
             password=contrasena,
-            host="127.0.0.1"
+            host='localhost',
+            port='5432'
         )
-        conn.close()
-        return True
-    except psycopg.Error as e:
-        return False
+        print("Conexión a la base de datos establecida.")
+        return conn
+    except psycopg.OperationalError as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        return None
 
 def insertar_critica():
     try:
         # Establecer la conexión con la base de datos
-        conn = psycopg2.connect(
-            dbname="PE",
-            user=usuario,
-            password=contrasena,
-            host="127.0.0.1"
-        )
-        print("Conexión exitosa")
+        conn = iniciar_sesion()
 
         critico=input("Inserte el nombre del crítico: ")
-        texto=input("Inserte la crítica")
-        puntuacion=input("Inserte la puntuación")
-        id_pagweb=input("Inserte la pag_web")
-        Fecha=input("Inserte la fecha")
-        id_pelicula=input("Inserte la id de la película")
+        texto=input("Inserte la crítica: ")
+        puntuacion=input("Inserte la puntuación: ")
+        id_pagweb=input("Inserte la pag_web: ")
+        Fecha=input("Inserte la fecha: ")
+        id_pelicula=input("Inserte la id de la película: ")
 
          # Crear un cursor para ejecutar la consulta
         cursor = conn.cursor()
@@ -356,8 +350,25 @@ def insertar_critica():
         INSERT INTO Critica (critico, Texto, Puntuacion, id_pagweb, Fecha, id_pelicula)
         VALUES (%s, %s, %s, %s, %s, %s)
         """
-        cursor.execute(consulta(critico, texto, puntuacion, id_pagweb, Fecha, id_pelicula))
+        consulta2="""
+        SELECT *
+        FROM critica
+        ORDER BY id_critica DESC
+        LIMIT 10
+        """
 
+        cursor.execute(consulta,(critico, texto, puntuacion, id_pagweb, Fecha, id_pelicula))
+        conn.commit()
+        cursor.execute(consulta2)
+        resultados=cursor.fetchall()
+
+        print("\nÚltimas 10 críticas insertadas:")
+        for resultado in resultados:
+            print(resultado)
+
+    except ValueError:
+        print("Error: Asegúrese de que la puntuación, la id de la página web y la id de la película sean enteros y la fecha esté en el formato correcto.")
+    
     except psycopg2.Error as e:
         print(f"Error en la conexión o ejecución al insertar la crítica: {e}")
 
@@ -393,6 +404,7 @@ def mostrar_menu_consultas():
     print("15. Consulta 9b1: Determinar el género o géneros cuyas películas tengan una puntuación media más baja. Mostrar también dicha puntuación media (ELIMINANDO LOS DIRECTORES CON UNA SOLA PELICULA)")
     print("16. Consulta 9b2: Determinar el género o géneros cuyas películas tengan una puntuación media más baja. Mostrar también dicha puntuación media (ELIMINANDO LOS DIRECTORES CON UNA SOLA PELICULA)")
     print("0. Salir")
+
 def consulta_opcion(opcion):
     consultas = {
     "1": consulta_1,
@@ -414,11 +426,13 @@ def consulta_opcion(opcion):
 }
     consulta=consultas.get(opcion)
     if consulta:
-        ejecutar_consulta(consulta)
+        ejecutar_consulta(consulta,us,contrasena)
     else:
         print("Opción no válida. Por favor, seleccione una opción válida.")
 
-def main():
+def main(name):
+    global db_name
+    db_name=name
     login()
     while True:
         mostrar_menu_principal()
@@ -428,10 +442,10 @@ def main():
             print("Saliendo del programa...")
             break
         elif opcion == "1":
-            if(usuario=="critico" or usuario=="admin"):
+            if(us=="critico" or us=="admin"):
                 insertar_critica()
             else:
-                print("Usuario sin permisos ")
+                print("usuario sin permisos ")
                 break
             
         elif opcion == "2":
@@ -445,4 +459,6 @@ def main():
             print("Opción no válida. Por favor, seleccione una opción válida.")
 
 if __name__ == "__main__":
-    main()
+    if(db_name==""):
+        db_name=input("Introduce el nombre de la Base de datos: ")
+    main(db_name)
