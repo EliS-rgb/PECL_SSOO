@@ -84,8 +84,8 @@ EXECUTE FUNCTION check_insert_critica();
 
 CREATE OR REPLACE FUNCTION check_insert_caratula() RETURNS TRIGGER AS $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM Pag_Web WHERE id_pagweb = NEW.id_pagweb) THEN
-        INSERT INTO Pag_Web (Url, tipo) VALUES (NEW.url, NEW.tipo);
+    IF NOT EXISTS (SELECT 1 FROM PagWeb WHERE id_pagweb = NEW.id_pagweb) THEN
+        INSERT INTO PagWeb (Url, tipo) VALUES (NEW.url, NEW.tipo);
     END IF;
     RETURN NEW;
 END;
