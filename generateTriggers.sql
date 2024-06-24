@@ -67,7 +67,7 @@ FOR EACH ROW EXECUTE FUNCTION trigger_aud();
 
 CREATE OR REPLACE FUNCTION check_insert_critica() RETURNS TRIGGER AS $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM Pag_Web WHERE url_pagweb = NEW.url_pagweb) THEN
+    IF NOT EXISTS (SELECT 1 FROM Pag_Web WHERE id_pagweb = NEW.id_pagweb) THEN
         INSERT INTO Pag_Web (Url, tipo) VALUES (NEW.url, NEW.tipo);
     END IF;
     RETURN NEW;
@@ -84,7 +84,7 @@ EXECUTE FUNCTION check_insert_critica();
 
 CREATE OR REPLACE FUNCTION check_insert_caratula() RETURNS TRIGGER AS $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM Pag_Web WHERE url_pagweb = NEW.url_pagweb) THEN
+    IF NOT EXISTS (SELECT 1 FROM Pag_Web WHERE id_pagweb = NEW.id_pagweb) THEN
         INSERT INTO Pag_Web (Url, tipo) VALUES (NEW.url, NEW.tipo);
     END IF;
     RETURN NEW;
